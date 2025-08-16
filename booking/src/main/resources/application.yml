@@ -1,0 +1,37 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: booking
+
+  cloud:
+
+    stream:
+      function:
+        definition: persistUserInBookingDB
+      kafka:
+        binder:
+          brokers:
+            - localhost:9092
+      bindings:
+        persistUserInBookingDB-in-0:
+          destination: "user-registration"
+          group: ${spring.application.name}
+
+  datasource:
+#    url: jdbc:h2:mem:uberdb
+    url: jdbc:mysql://localhost:3306/uberdb
+    username: root
+    password: root
+
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+
+  h2:
+    console:
+      enabled: true
