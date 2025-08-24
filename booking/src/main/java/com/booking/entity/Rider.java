@@ -12,7 +12,7 @@ import java.util.List;
 @Entity
 public class Rider {
     @Id
-    private long riderId;
+    private String riderId;
     private String riderName;
 
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "rider")

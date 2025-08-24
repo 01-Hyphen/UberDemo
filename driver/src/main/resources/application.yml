@@ -1,0 +1,41 @@
+spring:
+  cloud:
+
+    function:
+      definition: fetchBooking;addDriver
+    stream:
+      kafka:
+        binder:
+          brokers:
+            - localhost:9092
+      bindings:
+        fetchBooking-in-0:
+          destination: "send-booking"
+          group: ${spring.application.name}
+        addDriver-in-0:
+          destination: "user-registration"
+          group: ${spring.application.name}
+
+
+
+  application:
+    name: driver
+
+  datasource:
+#    url: jdbc:h2:mem:testdb
+    url: jdbc:mysql://localhost:3306/uberdb
+    username: root
+    password: root
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+#  h2:
+#    console:
+#      enabled: true
+
+  redis:
+    host: localhost
+    port: 6379
