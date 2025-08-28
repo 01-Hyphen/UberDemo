@@ -18,6 +18,8 @@ spring:
         persistUserInBookingDB-in-0:
           destination: "user-registration"
           group: ${spring.application.name}
+        send-booking-out-0:
+          destination: "send-booking"
 
   datasource:
 #    url: jdbc:h2:mem:uberdb

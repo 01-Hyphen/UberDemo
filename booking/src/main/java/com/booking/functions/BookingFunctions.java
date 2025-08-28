@@ -20,11 +20,10 @@ public class BookingFunctions {
         return  (userRegistrationEvent)->{
             if(userRegistrationEvent.getRoles().contains("RIDER")) {
                 Rider rider = new Rider();
-                rider.setRiderId(userRegistrationEvent.getUserId());
+                rider.setRiderId("R"+userRegistrationEvent.getUserId());
                 rider.setRiderName(userRegistrationEvent.getUserName());
                 riderRepository.save(rider);
             }
-
         };
     }
 
