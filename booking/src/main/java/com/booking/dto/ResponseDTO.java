@@ -7,5 +7,6 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public class ResponseDTO {
    private String msg;
+   private HttpStatus httpStatus;
 
 }

@@ -4,23 +4,32 @@ import com.booking.constants.RideStatus;
 import com.booking.dto.BookingDTO;
 import com.booking.entity.Booking;
 import com.booking.entity.Rider;
+import com.booking.exception.RideAlreadyAcceptedException;
 import com.booking.mapper.BookingMapper;
 import com.booking.repo.BookingRepository;
 import com.booking.repo.RiderRepository;
 import com.booking.exception.EntityNotFoundException;
 import com.booking.exception.NoBookingsFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.Book;
+import java.time.Duration;
 import java.util.List;
 
 @Service
+@Transactional
 public class BookingServiceImpl {
     @Autowired
     private StreamBridge streamBridge;
+
     private BookingRepository bookingRepository;
     private RiderRepository riderRepository;
+    @Autowired
+    private RedisTemplate<String,String> redisTemplate;
 
     @Autowired
     public BookingServiceImpl(BookingRepository bookingRepository,RiderRepository riderRepository){
@@ -68,7 +77,7 @@ public class BookingServiceImpl {
         return BookingMapper.toBookingDTO(currentBooking,new BookingDTO());
     }
 
-    public long changeStatusByDriver(long bookingId, long driverId,RideStatus rideStatus
+    public long changeStatusByDriver(long bookingId, String driverId,RideStatus rideStatus
     ){
        Booking booking = bookingRepository.findById(bookingId)
                .orElseThrow(()-> new NoBookingsFoundException("No booking  find with the given id"));
@@ -88,4 +97,16 @@ public class BookingServiceImpl {
     }
 
 
+    public String acceptBooking(String bookingId, String driverId) {
+        Booking booking = bookingRepository.findById(Long.parseLong(bookingId)).orElseThrow(()-> new EntityNotFoundException("Booking","bookingId",bookingId));
+        booking.setDriverId(driverId);
+        booking.setRideStatus(RideStatus.ACCEPTED);
+        Booking savedBooking = bookingRepository.save(booking);
+        return "Booking save with driverId"+driverId;
+    }
+
+    public Booking getBooking(long bookingId){
+        Booking booking =  bookingRepository.findById(bookingId).orElseThrow(()-> new EntityNotFoundException("Booking","bookingId",String.valueOf(bookingId)));
+        return booking;
+    }
 }
