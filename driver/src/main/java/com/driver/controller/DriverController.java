@@ -1,5 +1,6 @@
 package com.driver.controller;
 
+import com.driver.constants.RideStatus;
 import com.driver.dto.*;
 import com.driver.entity.Driver;
 import com.driver.misc.DriverBookingStore;
@@ -10,13 +11,11 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 @RestController
@@ -39,9 +38,9 @@ public class DriverController {
 
 
     @PostMapping("/location")
-    public ResponseEntity<ResponseDto> updateLocation(@RequestBody @Valid LocationDTO locationDTO){
+    public ResponseEntity<ResponseDTO> updateLocation(@RequestBody @Valid LocationDTO locationDTO){
         driverLocationService.updateDriverLocation(locationDTO.getDriverId(),locationDTO.getLat(),locationDTO.getLon());
-        return new ResponseEntity<>(new ResponseDto("Location updated!",HttpStatus.OK),HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseDTO("Location updated!",HttpStatus.OK),HttpStatus.OK);
     }
 
     @MessageMapping("/driver/location")
@@ -56,17 +55,17 @@ public class DriverController {
         return ResponseEntity.ok(driverLocationService.findNearbyDrivers(lat,lon));
     }
     @PostMapping("/addbooking")
-    public ResponseEntity<ResponseDto> addBooking(@RequestBody BookingCreatedEvent bookingCreatedEvent){
+    public ResponseEntity<ResponseDTO> addBooking(@RequestBody BookingCreatedEvent bookingCreatedEvent){
         this.driverService.addBooking(bookingCreatedEvent);
-        return new ResponseEntity<>(new ResponseDto("Booking Added Successfully!",HttpStatus.OK),HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseDTO("Booking Added Successfully!",HttpStatus.OK),HttpStatus.OK);
     }
 
 
     // Fetch pending bookings for a driver
     @GetMapping("/bookings")
-    public  ResponseEntity<ResponseDto> getDriverBookings(@RequestParam  @NotNull(message = "{driver.notnull}" )  String driverId) {
+    public  ResponseEntity<ResponseDTO> getDriverBookings(@RequestParam  @NotNull(message = "{driver.notnull}" )  String driverId) {
         String bookingId = this.driverService.getBooking(driverId);
-        return new ResponseEntity<>(new ResponseDto("Booking with bookingId: "+bookingId,HttpStatus.OK),HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseDTO("Booking with bookingId: "+bookingId,HttpStatus.OK),HttpStatus.OK);
     }
 
     @GetMapping("/getAllDriverBookingKeys")
@@ -76,9 +75,9 @@ public class DriverController {
     }
 
     @DeleteMapping("/removeBooking")
-    public ResponseEntity<ResponseDto> removeBookingFromAllDrivers(@RequestParam  @NotNull(message = "{driver.notnull}" ) String bookingId){
+    public ResponseEntity<ResponseDTO> removeBookingFromAllDrivers(@RequestParam  @NotNull(message = "{driver.notnull}" ) String bookingId){
         this.driverService.removeBookingFromAllDrivers(bookingId);
-        return new ResponseEntity<>(new ResponseDto("All Bookings removed for this bookingId from all drivers queues",HttpStatus.OK),HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseDTO("All Bookings removed for this bookingId from all drivers queues",HttpStatus.OK),HttpStatus.OK);
     }
 
     @Autowired
@@ -90,14 +89,32 @@ public class DriverController {
     }
 
     @PostMapping("/addDriver")
-    public ResponseEntity<ResponseDto> addDriver(@RequestBody UserRegistrationEvent userRegistrationEvent){
+    public ResponseEntity<ResponseDTO> addDriver(@RequestBody UserRegistrationEvent userRegistrationEvent){
         this.driverService.addDriver(userRegistrationEvent);
-        return new ResponseEntity<>(new ResponseDto("Driver Added Successfully!",HttpStatus.OK),HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseDTO("Driver Added Successfully!",HttpStatus.OK),HttpStatus.OK);
     }
     @PostMapping("/addVehicle")
-    public ResponseEntity<ResponseDto> addBooking(@RequestBody VehicleDto vehicleDto,@RequestParam String driverId){
+    public ResponseEntity<ResponseDTO> addBooking(@RequestBody VehicleDto vehicleDto, @RequestParam String driverId){
         this.driverService.addVehicle(vehicleDto,driverId);
-        return new ResponseEntity<>(new ResponseDto("Vehicle Added Successfully!",HttpStatus.OK),HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseDTO("Vehicle Added Successfully!",HttpStatus.OK),HttpStatus.OK);
+    }
+
+    @PostMapping("/accept-booking")
+    public ResponseEntity<ResponseDTO> acceptBooking(@RequestParam String bookingId, @RequestParam String driverId){
+        driverService.acceptBooking(bookingId,driverId);
+        return new ResponseEntity<>(new ResponseDTO("Booking acception initiated",HttpStatus.OK),HttpStatus.OK);
+    }
+
+    @PutMapping("/change-booking-status")
+    public ResponseEntity<ResponseDTO> changeBookingStatus(@RequestParam @NotNull(message = "{booking.notnull}") long bookingId,
+                                                           @RequestParam @NotNull(message = "{booking.notnull}") String driverId,
+                                                           @RequestParam @NotNull(message = "{booking.notnull}") RideStatus rideStatus){
+       return new ResponseEntity<>(driverService.changeBookingStatus(bookingId,driverId,rideStatus),HttpStatus.OK);
+    }
+
+    @GetMapping("/get-booking")
+    public ResponseEntity<Booking> getBooking(@RequestParam long bookingId){
+       return new ResponseEntity<>(driverService.getBooking(bookingId),HttpStatus.OK);
     }
 
 }

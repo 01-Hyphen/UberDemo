@@ -3,6 +3,7 @@ package com.booking.controller;
 import com.booking.constants.RideStatus;
 import com.booking.dto.BookingDTO;
 import com.booking.dto.ResponseDTO;
+import com.booking.entity.Booking;
 import com.booking.service.BookingServiceImpl;
 import com.booking.exception.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -25,7 +26,7 @@ public class BookingController {
     @PostMapping("/book-ride")
     public ResponseEntity<ResponseDTO> bookRide(@RequestBody @Valid BookingDTO bookingDTO, @NotNull(message = "{booking.notnull}") @RequestParam String riderId){
         long id  = bookingService.bookRide(bookingDTO,riderId);
-       return new ResponseEntity<>( new ResponseDTO("Your ride has been booked with bookingId: "+id)
+       return new ResponseEntity<>( new ResponseDTO("Your ride has been booked with bookingId: "+id,HttpStatus.OK)
        , HttpStatus.OK);
 
     }
@@ -44,16 +45,22 @@ public class BookingController {
 
     @PutMapping("/update-status-driver")
     public ResponseEntity<ResponseDTO> changeStatusByDriver(@RequestParam @NotNull(message = "{booking.notnull}") long bookingId,
-                                                            @RequestParam @NotNull(message = "{booking.notnull}") long driverId,
+                                                            @RequestParam @NotNull(message = "{booking.notnull}") String driverId,
                                                              @RequestParam @NotNull(message = "{booking.notnull}") RideStatus rideStatus){
         long id = bookingService.changeStatusByDriver(bookingId,driverId,rideStatus);
-        return new ResponseEntity<>(new ResponseDTO("Status has been updated as ${rideStatus} for booking ${id}"),HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseDTO("Status has been updated as "+rideStatus+" for booking "+bookingId,HttpStatus.OK),HttpStatus.OK);
     }
 
     @PutMapping("/cancel-your-ride")
-    public ResponseEntity<ResponseDTO> cancelRideBYRider(@RequestParam @NotNull(message = "{booking.notnull}") String riderId){
+    public ResponseEntity<ResponseDTO> cancelRideByRider(@RequestParam @NotNull(message = "{booking.notnull}") String riderId){
         long id = bookingService.cancelBookingByRider(riderId);
-        return new ResponseEntity<>(new ResponseDTO("Status has been updated as CANCELLED for booking ${id}"),HttpStatus
+        return new ResponseEntity<>(new ResponseDTO("Status has been updated as CANCELLED for booking ${id}",HttpStatus.OK),HttpStatus
+                .OK);
+    }
+
+    @GetMapping("/getBooking")
+    public ResponseEntity<Booking> getBooking(@RequestParam @NotNull(message = "{booking.notnull}") long bookingId){
+        return new ResponseEntity<>(bookingService.getBooking(bookingId),HttpStatus
                 .OK);
     }
 

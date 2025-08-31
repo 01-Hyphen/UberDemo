@@ -6,10 +6,9 @@ spring:
     name: booking
 
   cloud:
-
+    function:
+      definition: persistUserInBookingDB;acceptBooking
     stream:
-      function:
-        definition: persistUserInBookingDB
       kafka:
         binder:
           brokers:
@@ -20,6 +19,9 @@ spring:
           group: ${spring.application.name}
         send-booking-out-0:
           destination: "send-booking"
+        acceptBooking-in-0:
+          destination: "accept-booking"
+          group: ${spring.application.name}
 
   datasource:
 #    url: jdbc:h2:mem:uberdb
@@ -36,4 +38,28 @@ spring:
 
   h2:
     console:
+      enabled: true
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8181/eureka
+
+info:
+  app:
+    name: ${spring.application.name}
+    description: "booking-application"
+    version: "1.0.0"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    env:
       enabled: true

@@ -15,6 +15,8 @@ spring:
         addDriver-in-0:
           destination: "user-registration"
           group: ${spring.application.name}
+        accept-booking-out-1:
+          destination: "accept-booking"
 
 
 
@@ -39,3 +41,28 @@ spring:
   redis:
     host: localhost
     port: 6379
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8181/eureka
+
+info:
+  app:
+    name: ${spring.application.name}
+    description: "driver-application"
+    version: "1.0.0"
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    env:
+      enabled: true

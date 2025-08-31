@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatusCode;
 
 @Data
 @AllArgsConstructor
-public class ResponseDto {
+public class ResponseDTO {
     String msg;
-    HttpStatusCode status;
+    HttpStatus httpStatus;
 }
